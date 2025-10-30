@@ -2,6 +2,7 @@
 package miniproyecto;
 
 import java.util.Scanner;
+import java.sql.*;
 
 public class MiniProyecto {
 
@@ -243,6 +244,20 @@ public class MiniProyecto {
     }
 
     private static String obtenerRutaActual() {
+         // Prueba de conexión
+        try {
+            Connection conn = DriverManager.getConnection("jdbc:sqlite:filesystem.db");
+            System.out.println("✅ Conexión a SQLite establecida correctamente!");
+            
+            // Crear tabla de prueba
+            Statement stmt = conn.createStatement();
+            stmt.execute("CREATE TABLE IF NOT EXISTS prueba (id INTEGER, nombre TEXT)");
+            System.out.println("✅ Tabla de prueba creada correctamente!");
+            
+            conn.close();
+        } catch (SQLException e) {
+            System.err.println("❌ Error: " + e.getMessage());
+        }
         if (directorioActual == raiz) {
             return "/raiz";
         }
