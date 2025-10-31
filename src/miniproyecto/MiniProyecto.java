@@ -5,7 +5,7 @@ import java.util.Scanner;
 import java.sql.*;
 
 public class MiniProyecto {
-
+    //disponible 640gb, 64 marcos de 20 gb 1280 gb
     private static Directorio raiz;
     private static Directorio directorioActual;
     private static Scanner scanner = new Scanner(System.in);
