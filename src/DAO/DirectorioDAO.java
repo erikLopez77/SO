@@ -84,16 +84,23 @@ public class DirectorioDAO {
         }
     }
     public Directorio obtenerRaiz(){
-        String obtenerRaiz="SELECT COUNT(*) FROM directorios WHERE directorio_padre_id IS NULL AND nombre = 'C:/'";
-        Directorio raiz=new Directorio();
+        String obtenerRaiz = "SELECT id, nombre, puede_leer, puede_escribir, directorio_padre_id FROM directorios WHERE directorio_padre_id IS NULL AND nombre = 'C:/'";
+        Directorio raiz = null;
         try(Statement stmt =connection.createStatement()){
             ResultSet rs=stmt.executeQuery(obtenerRaiz);
                   
-            raiz.setId(rs.getInt("id"));
-            raiz.setNombre(rs.getString("nombre"));
-            raiz.setPuede_leer(rs.getBoolean("puede_leer"));
-            raiz.setPuede_escribir(rs.getBoolean("puede_escribir"));
-            
+            if (rs.next()) {
+                raiz = new Directorio();
+                raiz.setId(rs.getInt("id"));
+                raiz.setNombre(rs.getString("nombre"));
+                raiz.setPuede_leer(rs.getBoolean("puede_leer"));
+                raiz.setPuede_escribir(rs.getBoolean("puede_escribir"));
+                raiz.setDirectorio_padre_id(rs.getInt("directorio_padre_id")); // Será 0 o null
+
+                System.out.println("✓ Directorio raíz obtenido: " + raiz.getNombre());
+            } else {
+                System.err.println("✗ Error: No se encontró el directorio raíz en la base de datos");
+            }           
         } catch (SQLException ex) {
             Logger.getLogger(DirectorioDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
