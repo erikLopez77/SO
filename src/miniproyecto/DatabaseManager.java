@@ -1,8 +1,11 @@
 
 package miniproyecto;
+import DAO.DirectorioDAO;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class DatabaseManager {
     private static final String URL = "jdbc:sqlite:filesystem.db";
@@ -10,6 +13,7 @@ public class DatabaseManager {
     private Connection connection;
     
     private DatabaseManager() {
+        conectar();
         initializeDatabase();
     }
     public static DatabaseManager getInstance() {
@@ -17,6 +21,17 @@ public class DatabaseManager {
             instance = new DatabaseManager();
         }
         return instance;
+    }
+     // Método para establecer la conexión
+    private void conectar() {
+        try {
+            connection = DriverManager.getConnection(URL);
+            System.out.println("Conexión a SQLite establecida correctamente.");
+        } catch (SQLException e) {
+            System.err.println("Error al conectar con la base de datos: " + e.getMessage());
+            // Puedes lanzar una RuntimeException o manejar el error según tu necesidad
+            throw new RuntimeException("No se pudo conectar a la base de datos", e);
+        }
     }
     
     // Inicializar la base de datos y crear tablas
@@ -76,6 +91,7 @@ public class DatabaseManager {
         try (Statement stmt = connection.createStatement()) {
             // Verificar si el nodo raíz ya existe
             ResultSet rs = stmt.executeQuery(checkRootSQL);
+            //.next Devuelve true si hay un registro .getInt obtiene columna indicada y se compara si es vacio (==0)
             if (rs.next() && rs.getInt(1) == 0) {
                 // Insertar nodo raíz si no existe
                 stmt.execute(insertRootSQL);

@@ -1,6 +1,7 @@
 
 package miniproyecto;
 
+import DAO.DirectorioDAO;
 import java.util.Scanner;
 import java.sql.*;
 
@@ -11,8 +12,12 @@ public class MiniProyecto {
     private static Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
+        DatabaseManager dbManager=DatabaseManager.getInstance();
+        
+        DirectorioDAO directorioDAO=new DirectorioDAO();
         // 1. Definir la raíz
-        raiz = new Directorio("raiz");
+        //raiz = new Directorio("raiz");
+        Directorio raiz=directorioDAO.obtenerRaiz();
         directorioActual = raiz;
 
         // 2. Iniciar el menú principal
@@ -22,7 +27,7 @@ public class MiniProyecto {
     public static void mostrarMenuPrincipal() {
         int opcion = 0;
         while (opcion != 4) {
-            System.out.println("Ubicación Actual: " + obtenerRutaActual());
+           // System.out.println("Ubicación Actual: " + obtenerRutaActual());
             System.out.println("-----------------------------------------");
             System.out.println("1. Crear");
             System.out.println("2. Eliminar");
@@ -39,13 +44,13 @@ public class MiniProyecto {
 
             switch (opcion) {
                 case 1:
-                    mostrarMenuCrear();
+                    //mostrarMenuCrear();
                     break;
                 case 2:
-                    mostrarMenuEliminar();
+                    //mostrarMenuEliminar();
                     break;
                 case 3:
-                    mostrarMenuNavegacion();
+                    //mostrarMenuNavegacion();
                     break;
                 case 4:
                     System.out.println("Saliendo...");
@@ -56,7 +61,7 @@ public class MiniProyecto {
         }
         scanner.close();
     }
-
+    /*
     private static void mostrarMenuCrear() {
         String opcion = "";
         while (!opcion.equalsIgnoreCase("C")) {
@@ -273,5 +278,5 @@ public class MiniProyecto {
              return ruta.substring(1);
         }
         return ruta.toString();
-    }
+    }*/
 }
