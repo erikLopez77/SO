@@ -1,0 +1,43 @@
+# Archivos compilados de Java
+*.class
+*.jar
+*.war
+*.ear
+
+# Archivos de IDE
+*.iml
+*.ipr
+*.iws
+.idea/
+*.swp
+*.swo
+*~
+
+# Archivos de NetBeans
+/nbproject/private/
+/build/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+
+
+# Logs
+*.log
+logs/
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de target (Maven)
+target/
+
+# Archivos de Gradle
+.gradle/
+build/
+
+# Archivos de configuración local
+*.properties
+*.config
