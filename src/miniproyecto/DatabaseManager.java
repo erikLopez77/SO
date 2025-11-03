@@ -25,12 +25,14 @@ public class DatabaseManager {
      // Método para establecer la conexión
     private void conectar() {
         try {
-            connection = DriverManager.getConnection(URL);
-            System.out.println("Conexión a SQLite establecida correctamente.");
+            // Asegurar que solo hay una conexión
+            if (connection == null || connection.isClosed()) {
+                connection = DriverManager.getConnection(URL);
+                // Configurar para mejor manejo de concurrencia
+                connection.setAutoCommit(true);
+            }
         } catch (SQLException e) {
-            System.err.println("Error al conectar con la base de datos: " + e.getMessage());
-            // Puedes lanzar una RuntimeException o manejar el error según tu necesidad
-            throw new RuntimeException("No se pudo conectar a la base de datos", e);
+            System.err.println("Error al conectar: " + e.getMessage());
         }
     }
     
@@ -135,7 +137,14 @@ public class DatabaseManager {
             }
         }
     }
-     public Connection getConnection() {
+    public Connection getConnection() {
+        try {
+            if (connection == null || connection.isClosed()) {
+                conectar();
+            }
+        } catch (SQLException e) {
+            System.err.println("Error obteniendo conexión: " + e.getMessage());
+        }
         return connection;
     }
     

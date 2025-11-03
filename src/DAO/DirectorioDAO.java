@@ -12,8 +12,8 @@ public class DirectorioDAO {
     public DirectorioDAO (){
         this.connection=DatabaseManager.getInstance().getConnection();
     }
-    public void agregarHijo(Directorio d) {
-        // Antes de agregar, verifica si ya existe un nodo con ese nombre
+    public void crearDirectorio(Directorio d) {
+        // Antes de agregar, verifica si ya existe un dorectorio con ese nombre
         String buscaCarpeta="SELECT COUNT (*) from directorios WHERE directorio_padre_id=? AND nombre=?";
         try(PreparedStatement pstmt=connection.prepareStatement(buscaCarpeta)){
             pstmt.setInt(1,d.getDirectorio_padre_id());

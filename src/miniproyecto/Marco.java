@@ -11,9 +11,12 @@ public class Marco {
         this.archivo_id=archivo_id;
         this.memoria_id=memoria_id;
     }
-    
+ 
     public int getIndice(){
         return this.indice;
+    }
+    public void setIndice(int indice){
+        this.indice=indice;
     }
     public int getArchivo_id(){
         return this.archivo_id;

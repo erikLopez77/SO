@@ -1,7 +1,7 @@
 
 package miniproyecto;
 
-import DAO.DirectorioDAO;
+import DAO.*;
 import java.util.Scanner;
 import java.sql.*;
 
@@ -10,12 +10,17 @@ public class MiniProyecto {
     private static Directorio raiz;
     private static Directorio directorioActual;
     private static DirectorioDAO directorioDAO;
+    private static ArchivoDAO archivoDAO;
+    private static MarcoDAO marcoDAO;
+    private static final int espacioMarco = 20;
     private static Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
         DatabaseManager dbManager=DatabaseManager.getInstance();
         
         directorioDAO=new DirectorioDAO();
+        archivoDAO=new ArchivoDAO();
+        marcoDAO=new MarcoDAO();
         // 1. Definir la raíz
         Directorio raiz=directorioDAO.obtenerRaiz();
         directorioActual = raiz;
@@ -77,7 +82,7 @@ public class MiniProyecto {
                     crearDirectorio(directorioDAO);
                     break;
                 case "B":
-                    //crearArchivo();
+                    crearArchivo(archivoDAO,directorioActual.getId(),marcoDAO);
                     break;
                 case "C":
                     System.out.println("Volviendo al menú principal...");
@@ -160,19 +165,24 @@ public class MiniProyecto {
             return;
         }
         Directorio nuevoDir = new Directorio(nombre,directorioActual.getId(),true,true);
-        d.agregarHijo(nuevoDir);
+        d.crearDirectorio(nuevoDir);
     }
 
-/*    private static void crearArchivo() {
+    private static void crearArchivo(ArchivoDAO a,int directorio_padre_id,MarcoDAO marco) {
         System.out.print("Nombre del archivo: ");
         String nombre = scanner.nextLine();
         if (nombre.isEmpty()) {
             System.out.println("Error: El nombre no puede estar vacío.");
             return;
         }
-        Archivo nuevoArchivo = new Archivo(nombre);
-        directorioActual.agregarHijo(nuevoArchivo);
-    }*/
+        System.out.print("Tamaño en GB(numeros enteros):");
+        int espacio=scanner.nextInt();
+        double marcos= espacio/espacioMarco;
+        double marcosRedondeado = Math.ceil(marcos);
+        int m=(int)marcosRedondeado;
+        Archivo nuevoArchivo = new Archivo(nombre,directorio_padre_id,espacio,m);
+        a.crearArchivo(nuevoArchivo,marco);
+    }
 
     private static void eliminarDirectorio(DirectorioDAO d) { 
         System.out.print("ID del Directorio a eliminar: ");
