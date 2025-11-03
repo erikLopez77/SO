@@ -18,7 +18,7 @@ public class DirectorioDAO {
         try(PreparedStatement pstmt=connection.prepareStatement(buscaCarpeta)){
             pstmt.setInt(1,d.getDirectorio_padre_id());
             pstmt.setString(2,d.getNombre());
-            // Verificar si el nodo raíz ya existe
+            // Verificar si rs tiene coincidencias y si su primer resultado ==0 (vacio)
             ResultSet rs = pstmt.executeQuery();
             if (rs.next() && rs.getInt(1)==0) {
                 //Crear directorio si no existe
@@ -39,19 +39,69 @@ public class DirectorioDAO {
             Logger.getLogger(DirectorioDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    public void eliminarHijo(String nombre,int directorio_padre_id) {
-        String eliminarDirectorio="DELETE FROM directorios WHERE nombre=? AND directorio_padre_id=?";
+    public void verContenido(int id){
+        verDirectorios(id);
+        verArchivos(id);
+    }
+    private void verDirectorios(int id){
+        String buscaCarpetas="SELECT id, nombre, puede_leer, puede_escribir FROM directorios WHERE directorio_padre_id=?";
         
+        try(PreparedStatement pstmt = connection.prepareStatement(buscaCarpetas)){
+            pstmt.setInt(1,id);
+            
+            ResultSet rs=pstmt.executeQuery();
+            System.out.println("====DIRECTORIOS====");
+            boolean estaVacio=true;
+            while(rs.next()){
+                estaVacio=true;
+                System.out.println("📁 [DIR]  ID: "+rs.getInt("id")+
+                        ", Nombre: "+rs.getString("nombre")+
+                        ", Lectura: "+rs.getBoolean("puede_leer")+
+                        ", Escritura: "+rs.getBoolean("puede_leer"));
+            }                
+            if(!estaVacio){
+                System.out.println("No hay directorios");
+            }
+        }catch (SQLException ex) {
+            Logger.getLogger(DirectorioDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    private void verArchivos(int id){
+        String buscarArchivos="SELECT id,nombre,espacio,marcos FROM archivos WHERE directorio_padre_id=?";
+       
+            try(PreparedStatement pstmt2 = connection.prepareStatement(buscarArchivos)){
+                pstmt2.setInt(1,id);
+                ResultSet rs=pstmt2.executeQuery();
+                System.out.println("====ARCHIVOS====");
+                boolean estaVacio=false;
+                    while(rs.next()){
+                        estaVacio=true;
+                        System.out.println("📄 [FILE] ID: "+rs.getInt("id")+
+                                ", Nombre: "+rs.getString("nombre")+
+                                ", Espacio: "+rs.getBoolean("espacio")+"GB"+
+                                ", Marcos: "+rs.getBoolean("marcos"));
+                    }
+                if(!estaVacio){
+                    System.out.println("No hay archivos");
+                } 
+        }catch (SQLException ex) {
+            Logger.getLogger(DirectorioDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    public void eliminarPorID(int id) {
+        String eliminarDirectorio="DELETE FROM directorios WHERE id=?";   
         try(PreparedStatement pstmt=connection.prepareStatement(eliminarDirectorio)){
-            pstmt.setString(1, nombre);
-            pstmt.setInt(2,directorio_padre_id);
-            pstmt.executeUpdate();
-            System.out.println("Se ha eliminado la carpeta con èxito");
+            pstmt.setInt(1, id);
+            int filasAfectadas = pstmt.executeUpdate();
+            if (filasAfectadas > 0) {
+                System.out.println("Se ha eliminado la carpeta con éxito");
+            } else {
+                System.out.println("No se pudo eliminar la carpeta");
+            }
         } catch (SQLException ex) {
             Logger.getLogger(DirectorioDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
-        //hijos.removeIf(hijo -> hijo.getNombre().equals(nombre));
+       
     }
     /*
     public Nodo buscarHijo(String nombre) {
@@ -66,23 +116,47 @@ public class DirectorioDAO {
         return hijos;
     }
     */
-    public boolean estaVacio(int directorio_padre_id) {
-        String estaVacio="SELECT COUNT(*) FROM directorios WHERE directorio_padre_id=? AND SELECT COUNT(*) FROM archivos WHERE directorio_padre_id=?";
+    public boolean estaVacio(int id) {
+    // Verificar subdirectorios
+    String sqlSubdirectorios = "SELECT COUNT(*) as count FROM directorios WHERE directorio_padre_id = ?";
+    // Verificar archivos
+    String sqlArchivos = "SELECT COUNT(*) as count FROM archivos WHERE directorio_padre_id = ?";
+    
+    try (
+        PreparedStatement pstmtSubdir = connection.prepareStatement(sqlSubdirectorios);
+        PreparedStatement pstmtArchivos = connection.prepareStatement(sqlArchivos)
+    ) {
+        // Verificar subdirectorios
+        pstmtSubdir.setInt(1, id);
+        ResultSet rsSubdir = pstmtSubdir.executeQuery();
         
-        try(PreparedStatement pstmt = connection.prepareStatement(estaVacio)){
-            pstmt.setInt(1,directorio_padre_id);
-            pstmt.setInt(2,directorio_padre_id);
-            ResultSet rs=pstmt.executeQuery();
-            if(rs.next() && rs.getInt(1)==0){
-                //en este caso no hay coindidencias
-                return true;
-            }
-            return false;
-        } catch (SQLException ex) {
-            Logger.getLogger(DirectorioDAO.class.getName()).log(Level.SEVERE, null, ex);
-            return false;
+        // Verificar archivos
+        pstmtArchivos.setInt(1, id);
+        ResultSet rsArchivos = pstmtArchivos.executeQuery();
+        
+        int totalSubdirectorios = 0;
+        int totalArchivos = 0;
+        
+        if (rsSubdir.next()) {
+            totalSubdirectorios = rsSubdir.getInt("count");
         }
+        
+        if (rsArchivos.next()) {
+            totalArchivos = rsArchivos.getInt("count");
+        }
+        
+        System.out.println("Subdirectorios encontrados: " + totalSubdirectorios);
+        System.out.println("Archivos encontrados: " + totalArchivos);
+        System.out.println("Total elementos: " + (totalSubdirectorios + totalArchivos));
+        
+        return (totalSubdirectorios + totalArchivos) == 0;
+        
+    } catch (SQLException ex) {
+        System.err.println("Error verificando si el directorio está vacío: " + ex.getMessage());
+        ex.printStackTrace();
+        return false;
     }
+}
     public Directorio obtenerRaiz(){
         String obtenerRaiz = "SELECT id, nombre, puede_leer, puede_escribir, directorio_padre_id FROM directorios WHERE directorio_padre_id IS NULL AND nombre = 'C:/'";
         Directorio raiz = null;

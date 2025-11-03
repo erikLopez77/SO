@@ -9,14 +9,14 @@ public class MiniProyecto {
     //disponible 640gb, 64 marcos de 20 gb 1280 gb
     private static Directorio raiz;
     private static Directorio directorioActual;
+    private static DirectorioDAO directorioDAO;
     private static Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
         DatabaseManager dbManager=DatabaseManager.getInstance();
         
-        DirectorioDAO directorioDAO=new DirectorioDAO();
+        directorioDAO=new DirectorioDAO();
         // 1. Definir la raíz
-        //raiz = new Directorio("raiz");
         Directorio raiz=directorioDAO.obtenerRaiz();
         directorioActual = raiz;
 
@@ -44,13 +44,13 @@ public class MiniProyecto {
 
             switch (opcion) {
                 case 1:
-                    //mostrarMenuCrear();
+                    mostrarMenuCrear();
                     break;
                 case 2:
-                    //mostrarMenuEliminar();
+                    mostrarMenuEliminar();
                     break;
                 case 3:
-                    //mostrarMenuNavegacion();
+                    mostrarMenuNavegacion();
                     break;
                 case 4:
                     System.out.println("Saliendo...");
@@ -61,7 +61,7 @@ public class MiniProyecto {
         }
         scanner.close();
     }
-    /*
+   
     private static void mostrarMenuCrear() {
         String opcion = "";
         while (!opcion.equalsIgnoreCase("C")) {
@@ -74,10 +74,10 @@ public class MiniProyecto {
 
             switch (opcion.toUpperCase()) {
                 case "A":
-                    crearDirectorio();
+                    crearDirectorio(directorioDAO);
                     break;
                 case "B":
-                    crearArchivo();
+                    //crearArchivo();
                     break;
                 case "C":
                     System.out.println("Volviendo al menú principal...");
@@ -100,10 +100,10 @@ public class MiniProyecto {
 
             switch (opcion.toUpperCase()) {
                 case "A":
-                    eliminarDirectorio();
+                    eliminarDirectorio(directorioDAO);
                     break;
                 case "B":
-                    eliminarArchivo();
+                    //eliminarArchivo();
                     break;
                 case "C":
                     System.out.println("Volviendo al menú principal...");
@@ -118,7 +118,7 @@ public class MiniProyecto {
         String opcion = "";
         while (!opcion.equalsIgnoreCase("E")) {
             System.out.println("\n--- |Menú Navegación| ---");
-            System.out.println("Ubicación Actual: " + obtenerRutaActual());
+            //System.out.println("Ubicación Actual: " + obtenerRutaActual());
             System.out.println("--------------------------");
             System.out.println("A. Mostrar Contenido (Carpeta Actual)");
             System.out.println("B. Acceder a Carpeta");
@@ -130,16 +130,16 @@ public class MiniProyecto {
 
             switch (opcion.toUpperCase()) {
                 case "A":
-                    mostrarContenido();
+                    directorioDAO.verContenido(directorioActual.getId());
                     break;
                 case "B":
-                    accederDirectorio();
+                    //accederDirectorio();
                     break;
                 case "C":
-                    subirNivel();
+                    //subirNivel();
                     break;
                 case "D":
-                    irALaRaiz();
+                    //irALaRaiz();
                     break;
                 case "E":
                     System.out.println("Volviendo al menú principal...");
@@ -152,18 +152,18 @@ public class MiniProyecto {
 
     // --- MÉTODOS DE ACCIÓN (Sin cambios) ---
 
-    private static void crearDirectorio() {
+    private static void crearDirectorio(DirectorioDAO d) {
         System.out.print("Nombre del directorio: ");
         String nombre = scanner.nextLine();
         if (nombre.isEmpty()) {
             System.out.println("Error: El nombre no puede estar vacío.");
             return;
         }
-        Directorio nuevoDir = new Directorio(nombre);
-        directorioActual.agregarHijo(nuevoDir);
+        Directorio nuevoDir = new Directorio(nombre,directorioActual.getId(),true,true);
+        d.agregarHijo(nuevoDir);
     }
 
-    private static void crearArchivo() {
+/*    private static void crearArchivo() {
         System.out.print("Nombre del archivo: ");
         String nombre = scanner.nextLine();
         if (nombre.isEmpty()) {
@@ -172,27 +172,16 @@ public class MiniProyecto {
         }
         Archivo nuevoArchivo = new Archivo(nombre);
         directorioActual.agregarHijo(nuevoArchivo);
-    }
+    }*/
 
-    private static void eliminarDirectorio() { 
-        System.out.print("Directorio a eliminar: ");
-        String nombre = scanner.nextLine();
-        Nodo nodo = directorioActual.buscarHijo(nombre);
-
-        if (nodo instanceof Directorio) {
-            Directorio dir = (Directorio) nodo;
-            if (dir.estaVacio()) {
-                directorioActual.eliminarHijo(nombre);
-                System.out.println("Directorio '" + nombre + "' eliminado.");
-            } else {
-                System.out.println("Error: No se puede borrar el directorio porque no está vacío.");
-            }
-        } else if (nodo == null) {
-            System.out.println("Error: El directorio '" + nombre + "' no existe.");
-        } else {
-            System.out.println("Error: '" + nombre + "' no es un directorio.");
-        }
-    }
+    private static void eliminarDirectorio(DirectorioDAO d) { 
+        System.out.print("ID del Directorio a eliminar: ");
+        int id = scanner.nextInt();
+        //Nodo nodo = directorioActual.buscarHijo(nombre);
+        if(d.estaVacio(id)){
+            d.eliminarPorID(id);
+        }   
+    }/*
 
     private static void eliminarArchivo() {
         System.out.print("Archivo a eliminar: ");
@@ -208,22 +197,9 @@ public class MiniProyecto {
             System.out.println("Error: '" + nombre + "' no es un archivo.");
         }
     }
-
-    private static void mostrarContenido() {
-        System.out.println("\n--- Contenido de '" + directorioActual.getNombre() + "' ---");
-        if (directorioActual.estaVacio()) {
-            System.out.println("(Directorio vacío)");
-        } else {
-            for (Nodo hijo : directorioActual.getHijos()) {
-                if (hijo instanceof Directorio) {
-                    System.out.println("📁 [DIR]  " + hijo.getNombre());
-                } else {
-                    System.out.println("📄 [FILE] " + hijo.getNombre());
-                }
-            }
-        }
-    }
-
+*/
+    
+/*
     private static void accederDirectorio() {
         System.out.print("Nombre del directorio al que se quiere acceder: ");
         String nombre = scanner.nextLine();

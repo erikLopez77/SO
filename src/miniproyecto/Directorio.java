@@ -20,6 +20,9 @@ public class Directorio {
         this.puede_leer=puede_leer;
         this.puede_escribir=puede_escribir;
     }
+    public int getId(){
+        return this.id;
+    }
     public void setId(int id){
         this.id=id;
     }
