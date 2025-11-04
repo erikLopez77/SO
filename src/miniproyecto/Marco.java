@@ -30,4 +30,8 @@ public class Marco {
     public void setMemoria_id(int memoria_id){
         this.memoria_id=memoria_id;
     }
+    
+    public String toString(){
+        return "Marco: "+indice+", idArchivo: "+archivo_id;
+    }
 }

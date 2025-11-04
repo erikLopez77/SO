@@ -4,6 +4,8 @@ package DAO;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import miniproyecto.*;
 
 public class MarcoDAO {
@@ -31,4 +33,23 @@ public class MarcoDAO {
         }
         return marcos;
     }
+    public void llenarMarcos(int noMarcos,int id){
+        List<Marco> marcos=obtenerMarcos();
+        int count=0;
+        //List<int> indices=new ArrayList<>;
+        String sql="UPDATE marco SET archivo_id=? WHERE indice=?";
+        for(Marco m:marcos){
+            if(m.getArchivo_id()==0 && noMarcos!=count){
+               try(PreparedStatement pstmt=connection.prepareStatement(sql)){
+                   pstmt.setInt(1,id);
+                   pstmt.setInt(2, m.getIndice());
+                   pstmt.executeUpdate();
+                   count++;
+               } catch (SQLException ex) {
+                    Logger.getLogger(MarcoDAO.class.getName()).log(Level.SEVERE, null, ex);
+               }
+            }
+        }
+    }
+   
 }

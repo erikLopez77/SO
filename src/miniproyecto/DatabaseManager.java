@@ -8,7 +8,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class DatabaseManager {
-    private static final String URL = "jdbc:sqlite:filesystem.db";
+    private static final String URL = "jdbc:sqlite:SO.db";
     private static DatabaseManager instance;
     private Connection connection;
     
@@ -59,7 +59,7 @@ public class DatabaseManager {
         String createTableMemory=
              "CREATE TABLE IF NOT EXISTS memoria ("+
                 "id INTEGER PRIMARY KEY AUTOINCREMENT,"+
-                "espacioDisponible INTEGER NOT NULL,"+
+                "marcosDisponibles INTEGER NOT NULL,"+
                 "espacioTotal INTEGER NOT NULL"+
             ");";
         String createTableMarco=
@@ -107,8 +107,8 @@ public class DatabaseManager {
     private void crearMemoriaInicial() throws SQLException {
         String checkMemorySQL = "SELECT COUNT(*) FROM memoria";
         String insertMemorySQL = 
-            "INSERT INTO memoria (espacioDisponible, espacioTotal) " +
-            "SELECT 1280, 1280 " +
+            "INSERT INTO memoria (marcosDisponibles, espacioTotal) " +
+            "SELECT 64, 1280 " +
             "WHERE NOT EXISTS (SELECT 1 FROM memoria)";
 
         String crearMarcosSQL = 
@@ -122,7 +122,7 @@ public class DatabaseManager {
             if (rs.next() && rs.getInt(1) == 0) {
                 // Crear memoria con 1280 unidades
                 stmt.execute(insertMemorySQL);
-                System.out.println("Memoria inicializada con 1280 unidades.");
+                System.out.println("Memoria inicializada con 64 marcos.");
 
                 // Crear marcos de memoria (puedes ajustar la cantidad)
                 // Por ejemplo, si cada marco tiene 64 unidades, necesitarías 20 marcos

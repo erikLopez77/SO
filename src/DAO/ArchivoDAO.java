@@ -11,7 +11,7 @@ public class ArchivoDAO {
     public ArchivoDAO(){
         this.connection=DatabaseManager.getInstance().getConnection();
     }
-    public void crearArchivo(Archivo a,MarcoDAO m){
+    public void crearArchivo(Archivo a){
         // Antes de agregar, verifica si ya existe un archivo con ese nombre
         String buscaCarpeta="SELECT COUNT (*) from archivos WHERE directorio_padre_id=? AND nombre=?";
         try(PreparedStatement pstmt=connection.prepareStatement(buscaCarpeta)){
@@ -29,7 +29,7 @@ public class ArchivoDAO {
                     pstmt2.setInt(3, a.getEspacio());
                     pstmt2.setInt(4, a.getMarcos());
                     pstmt2.executeUpdate();                
-                                      
+                  
                     //llenarmarcos
                     System.out.println("Se ha creado el archivo "+a.getNombre());                    
                 }
@@ -40,7 +40,20 @@ public class ArchivoDAO {
             Logger.getLogger(DirectorioDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    public void llenarMarcos(int id,int marcos){
-        
+    public int obtenerIDArchivo(Archivo a){
+        int id=-1;
+        String sql="SELECT id FROM archivos WHERE nombre=? AND directorio_padre_id=?";
+        try(PreparedStatement pstmt=connection.prepareStatement(sql)){
+            pstmt.setString(1,a.getNombre());
+            pstmt.setInt(2,a.getDirectorio_padre_id());
+            ResultSet rs=pstmt.executeQuery();
+            
+            id=rs.getInt("id");
+            
+        } catch (SQLException ex) {
+            Logger.getLogger(ArchivoDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return id;
     }
+    
 }

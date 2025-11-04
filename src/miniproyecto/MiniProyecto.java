@@ -12,6 +12,7 @@ public class MiniProyecto {
     private static DirectorioDAO directorioDAO;
     private static ArchivoDAO archivoDAO;
     private static MarcoDAO marcoDAO;
+    private static MemoriaDAO memoriaDAO;
     private static final int espacioMarco = 20;
     private static Scanner scanner = new Scanner(System.in);
 
@@ -21,6 +22,7 @@ public class MiniProyecto {
         directorioDAO=new DirectorioDAO();
         archivoDAO=new ArchivoDAO();
         marcoDAO=new MarcoDAO();
+        memoriaDAO=new MemoriaDAO();
         // 1. Definir la raíz
         Directorio raiz=directorioDAO.obtenerRaiz();
         directorioActual = raiz;
@@ -82,7 +84,7 @@ public class MiniProyecto {
                     crearDirectorio(directorioDAO);
                     break;
                 case "B":
-                    crearArchivo(archivoDAO,directorioActual.getId(),marcoDAO);
+                    crearArchivo(archivoDAO,directorioActual.getId(),marcoDAO,memoriaDAO);
                     break;
                 case "C":
                     System.out.println("Volviendo al menú principal...");
@@ -168,7 +170,7 @@ public class MiniProyecto {
         d.crearDirectorio(nuevoDir);
     }
 
-    private static void crearArchivo(ArchivoDAO a,int directorio_padre_id,MarcoDAO marco) {
+    private static void crearArchivo(ArchivoDAO a,int directorio_padre_id,MarcoDAO marco,MemoriaDAO mem) {
         System.out.print("Nombre del archivo: ");
         String nombre = scanner.nextLine();
         if (nombre.isEmpty()) {
@@ -177,11 +179,22 @@ public class MiniProyecto {
         }
         System.out.print("Tamaño en GB(numeros enteros):");
         int espacio=scanner.nextInt();
-        double marcos= espacio/espacioMarco;
-        double marcosRedondeado = Math.ceil(marcos);
-        int m=(int)marcosRedondeado;
-        Archivo nuevoArchivo = new Archivo(nombre,directorio_padre_id,espacio,m);
-        a.crearArchivo(nuevoArchivo,marco);
+        //calculamos los marcos necesarios y lo redondeamos hacia arriba para tomar la parte entera
+        int m = (int) Math.ceil((double) espacio / espacioMarco); 
+        
+        if(mem.hayMarcosDisponibles(m)){
+            //si hay espacio suficiente se crea el marco
+            Archivo nuevoArchivo = new Archivo(nombre,directorio_padre_id,espacio,m);
+            a.crearArchivo(nuevoArchivo);
+            int id=a.obtenerIDArchivo(nuevoArchivo);
+            //System.out.println("el id es: "+id);
+            marco.llenarMarcos(m,id);           
+            //restar marcos para el espacioDisponible
+            mem.restarMarcos(m);
+        }else{
+            System.out.println("Lo sentimos, espacio insuficiente");
+        }
+        
     }
 
     private static void eliminarDirectorio(DirectorioDAO d) { 
