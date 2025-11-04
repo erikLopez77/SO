@@ -50,4 +50,7 @@ public class Directorio {
     public void setPuede_escribir(boolean puede_escribir){
         this.puede_escribir=puede_escribir;
     }
+    public String toString(){
+        return "ID:"+id+", Directorio: "+nombre;
+    }
 }

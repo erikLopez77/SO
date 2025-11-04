@@ -13,6 +13,7 @@ public class MiniProyecto {
     private static ArchivoDAO archivoDAO;
     private static MarcoDAO marcoDAO;
     private static MemoriaDAO memoriaDAO;
+    private static StringBuilder rutaActual;
     private static final int espacioMarco = 20;
     private static Scanner scanner = new Scanner(System.in);
 
@@ -24,9 +25,8 @@ public class MiniProyecto {
         marcoDAO=new MarcoDAO();
         memoriaDAO=new MemoriaDAO();
         // 1. Definir la raíz
-        Directorio raiz=directorioDAO.obtenerRaiz();
-        directorioActual = raiz;
-
+        irALaRaiz();
+        
         // 2. Iniciar el menú principal
         mostrarMenuPrincipal();
     }
@@ -34,7 +34,8 @@ public class MiniProyecto {
     public static void mostrarMenuPrincipal() {
         int opcion = 0;
         while (opcion != 4) {
-           // System.out.println("Ubicación Actual: " + obtenerRutaActual());
+            System.out.println("\n--- Menú Principal ---");
+            System.out.println("Ruta actual: "+rutaActual);
             System.out.println("-----------------------------------------");
             System.out.println("1. Crear");
             System.out.println("2. Eliminar");
@@ -73,6 +74,8 @@ public class MiniProyecto {
         String opcion = "";
         while (!opcion.equalsIgnoreCase("C")) {
             System.out.println("\n--- Menú Crear ---");
+            System.out.println("Ruta actual: "+rutaActual);
+            System.out.println("--------------------------");
             System.out.println("A. Crear Directorio");
             System.out.println("B. Crear Archivo");
             System.out.println("C. Volver al menú principal");
@@ -99,6 +102,8 @@ public class MiniProyecto {
         String opcion = "";
         while (!opcion.equalsIgnoreCase("C")) {
             System.out.println("\n--- |Menú Eliminar| ---");
+            System.out.println("Ruta actual: "+rutaActual);
+            System.out.println("--------------------------");
             System.out.println("A. Eliminar Directorio");
             System.out.println("B. Eliminar Archivo");
             System.out.println("C. Volver al menú principal");
@@ -125,7 +130,7 @@ public class MiniProyecto {
         String opcion = "";
         while (!opcion.equalsIgnoreCase("E")) {
             System.out.println("\n--- |Menú Navegación| ---");
-            //System.out.println("Ubicación Actual: " + obtenerRutaActual());
+            System.out.println("Ruta actual: "+rutaActual);
             System.out.println("--------------------------");
             System.out.println("A. Mostrar Contenido (Carpeta Actual)");
             System.out.println("B. Acceder a Carpeta");
@@ -140,13 +145,13 @@ public class MiniProyecto {
                     directorioDAO.verContenido(directorioActual.getId());
                     break;
                 case "B":
-                    //accederDirectorio();
+                    accederDirectorio(directorioDAO);
                     break;
                 case "C":
-                    //subirNivel();
+                    subirNivel(directorioDAO);                   
                     break;
                 case "D":
-                    //irALaRaiz();
+                    irALaRaiz();
                     break;
                 case "E":
                     System.out.println("Volviendo al menú principal...");
@@ -222,60 +227,37 @@ public class MiniProyecto {
     }
 */
     
-/*
-    private static void accederDirectorio() {
+    private static void accederDirectorio(DirectorioDAO d) {
         System.out.print("Nombre del directorio al que se quiere acceder: ");
         String nombre = scanner.nextLine();
-        Nodo nodo = directorioActual.buscarHijo(nombre);
-
-        if (nodo instanceof Directorio) {
-            directorioActual = (Directorio) nodo;
-        } else {
-            System.out.println("Error: No se encontró el directorio '" + nombre + "'.");
+        
+        Directorio directorio=d.obtenerDirectorio(directorioActual.getId(), nombre);
+        
+        if(directorio!=null){
+            directorioActual=directorio;
+            rutaActual.append("/"+directorioActual.getNombre());
         }
     }
 
-    private static void subirNivel() {
-        if (directorioActual.getPadre() != null) {
-            directorioActual = directorioActual.getPadre();
+    private static void subirNivel(DirectorioDAO d) {
+        if (directorioActual.getDirectorio_padre_id() != 0) {
+            //directorioActual = directoriorioActual.getPadre();
+            Directorio directorio=d.obtenerDirectorio(directorioActual.getDirectorio_padre_id());
+        
+            if(directorio!=null){
+                directorioActual=directorio;
+                int lengthDir=directorioActual.getNombre().length()+1;
+                rutaActual.delete(lengthDir,rutaActual.length());
+            }
         } else {
             System.out.println("Raíz, no se puede subir más.");
         }
     }
 
     private static void irALaRaiz() {
+        Directorio raiz=directorioDAO.obtenerRaiz();
         directorioActual = raiz;
+        rutaActual=new StringBuilder("C:/");
     }
 
-    private static String obtenerRutaActual() {
-         // Prueba de conexión
-        try {
-            Connection conn = DriverManager.getConnection("jdbc:sqlite:filesystem.db");
-            System.out.println("✅ Conexión a SQLite establecida correctamente!");
-            
-            // Crear tabla de prueba
-            Statement stmt = conn.createStatement();
-            stmt.execute("CREATE TABLE IF NOT EXISTS prueba (id INTEGER, nombre TEXT)");
-            System.out.println("✅ Tabla de prueba creada correctamente!");
-            
-            conn.close();
-        } catch (SQLException e) {
-            System.err.println("❌ Error: " + e.getMessage());
-        }
-        if (directorioActual == raiz) {
-            return "/raiz";
-        }
-        
-        StringBuilder ruta = new StringBuilder();
-        Directorio temp = directorioActual;
-        while (temp != null) {
-            ruta.insert(0, "/" + temp.getNombre());
-            temp = temp.getPadre();
-        }
-        // Elimina el duplicado "/raiz" al principio si existe
-        if (ruta.toString().startsWith("/raiz")) {
-             return ruta.substring(1);
-        }
-        return ruta.toString();
-    }*/
 }
