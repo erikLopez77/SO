@@ -84,10 +84,10 @@ public class MiniProyecto {
 
             switch (opcion.toUpperCase()) {
                 case "A":
-                    crearDirectorio(directorioDAO);
+                    crearDirectorio();
                     break;
                 case "B":
-                    crearArchivo(archivoDAO,directorioActual.getId(),marcoDAO,memoriaDAO);
+                    crearArchivo(directorioActual.getId());
                     break;
                 case "C":
                     System.out.println("Volviendo al menú principal...");
@@ -112,10 +112,10 @@ public class MiniProyecto {
 
             switch (opcion.toUpperCase()) {
                 case "A":
-                    eliminarDirectorio(directorioDAO);
+                    eliminarDirectorio();
                     break;
                 case "B":
-                    //eliminarArchivo();
+                    eliminarArchivo();
                     break;
                 case "C":
                     System.out.println("Volviendo al menú principal...");
@@ -145,10 +145,10 @@ public class MiniProyecto {
                     directorioDAO.verContenido(directorioActual.getId());
                     break;
                 case "B":
-                    accederDirectorio(directorioDAO);
+                    accederDirectorio();
                     break;
                 case "C":
-                    subirNivel(directorioDAO);                   
+                    subirNivel();                   
                     break;
                 case "D":
                     irALaRaiz();
@@ -164,7 +164,7 @@ public class MiniProyecto {
 
     // --- MÉTODOS DE ACCIÓN (Sin cambios) ---
 
-    private static void crearDirectorio(DirectorioDAO d) {
+    private static void crearDirectorio() {
         System.out.print("Nombre del directorio: ");
         String nombre = scanner.nextLine();
         if (nombre.isEmpty()) {
@@ -172,10 +172,10 @@ public class MiniProyecto {
             return;
         }
         Directorio nuevoDir = new Directorio(nombre,directorioActual.getId(),true,true);
-        d.crearDirectorio(nuevoDir);
+        directorioDAO.crearDirectorio(nuevoDir);
     }
 
-    private static void crearArchivo(ArchivoDAO a,int directorio_padre_id,MarcoDAO marco,MemoriaDAO mem) {
+    private static void crearArchivo(int directorio_padre_id) {
         System.out.print("Nombre del archivo: ");
         String nombre = scanner.nextLine();
         if (nombre.isEmpty()) {
@@ -187,51 +187,53 @@ public class MiniProyecto {
         //calculamos los marcos necesarios y lo redondeamos hacia arriba para tomar la parte entera
         int m = (int) Math.ceil((double) espacio / espacioMarco); 
         
-        if(mem.hayMarcosDisponibles(m)){
+        if(memoriaDAO.hayMarcosDisponibles(m)){
             //si hay espacio suficiente se crea el marco
             Archivo nuevoArchivo = new Archivo(nombre,directorio_padre_id,espacio,m);
-            a.crearArchivo(nuevoArchivo);
-            int id=a.obtenerIDArchivo(nuevoArchivo);
+            archivoDAO.crearArchivo(nuevoArchivo);
+            int id=archivoDAO.obtenerIDArchivo(nuevoArchivo);
             //System.out.println("el id es: "+id);
-            marco.llenarMarcos(m,id);           
+            marcoDAO.llenarMarcos(m,id);           
             //restar marcos para el espacioDisponible
-            mem.restarMarcos(m);
+            memoriaDAO.restarMarcos(m);
         }else{
             System.out.println("Lo sentimos, espacio insuficiente");
         }
         
     }
 
-    private static void eliminarDirectorio(DirectorioDAO d) { 
+    private static void eliminarDirectorio() { 
+        directorioDAO.verDirectorios(directorioActual.getId());
         System.out.print("ID del Directorio a eliminar: ");
         int id = scanner.nextInt();
         //Nodo nodo = directorioActual.buscarHijo(nombre);
-        if(d.estaVacio(id)){
-            d.eliminarPorID(id);
+        if(directorioDAO.estaVacio(id)){
+            directorioDAO.eliminarPorID(id);
         }   
-    }/*
+    }
 
     private static void eliminarArchivo() {
-        System.out.print("Archivo a eliminar: ");
-        String nombre = scanner.nextLine();
-        Nodo nodo = directorioActual.buscarHijo(nombre);
-
-        if (nodo instanceof Archivo) {
-            directorioActual.eliminarHijo(nombre);
-            System.out.println("Archivo '" + nombre + "' eliminado.");
-        } else if (nodo == null) {
-            System.out.println("Error: El archivo '" + nombre + "' no existe.");
-        } else {
-            System.out.println("Error: '" + nombre + "' no es un archivo.");
-        }
+        directorioDAO.verArchivos(directorioActual.getId());
+        System.out.print("ID del archivo a eliminar: ");
+        int id = scanner.nextInt();
+        //obtener el archivo a Eliminar
+        Archivo arch=archivoDAO.obtenerArchivo(id, directorioActual.getId());
+        if(arch!=null){
+            //liberar la memoria
+            memoriaDAO.sumarMarcos(arch.getMarcos());
+            marcoDAO.vaciarMarcos(arch.getId());
+            archivoDAO.eliminarArchivo(id, directorioActual.getId());
+        }else{
+            System.out.println("No se pudo eliminar su archivo");
+        }     
     }
-*/
+
     
-    private static void accederDirectorio(DirectorioDAO d) {
+    private static void accederDirectorio() {
         System.out.print("Nombre del directorio al que se quiere acceder: ");
         String nombre = scanner.nextLine();
         
-        Directorio directorio=d.obtenerDirectorio(directorioActual.getId(), nombre);
+        Directorio directorio=directorioDAO.obtenerDirectorio(directorioActual.getId(), nombre);
         
         if(directorio!=null){
             directorioActual=directorio;
@@ -239,10 +241,10 @@ public class MiniProyecto {
         }
     }
 
-    private static void subirNivel(DirectorioDAO d) {
+    private static void subirNivel() {
         if (directorioActual.getDirectorio_padre_id() != 0) {
             //directorioActual = directoriorioActual.getPadre();
-            Directorio directorio=d.obtenerDirectorio(directorioActual.getDirectorio_padre_id());
+            Directorio directorio=directorioDAO.obtenerDirectorio(directorioActual.getDirectorio_padre_id());
         
             if(directorio!=null){
                 directorioActual=directorio;

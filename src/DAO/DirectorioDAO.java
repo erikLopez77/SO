@@ -43,7 +43,7 @@ public class DirectorioDAO {
         verDirectorios(id);
         verArchivos(id);
     }
-    private void verDirectorios(int id){
+    public void verDirectorios(int id){
         String buscaCarpetas="SELECT id, nombre, puede_leer, puede_escribir FROM directorios WHERE directorio_padre_id=?";
         
         try(PreparedStatement pstmt = connection.prepareStatement(buscaCarpetas)){
@@ -66,7 +66,7 @@ public class DirectorioDAO {
             Logger.getLogger(DirectorioDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    private void verArchivos(int id){
+    public void verArchivos(int id){
         String buscarArchivos="SELECT id,nombre,espacio,marcos FROM archivos WHERE directorio_padre_id=?";
        
             try(PreparedStatement pstmt2 = connection.prepareStatement(buscarArchivos)){
@@ -78,8 +78,8 @@ public class DirectorioDAO {
                         estaVacio=true;
                         System.out.println("📄 [FILE] ID: "+rs.getInt("id")+
                                 ", Nombre: "+rs.getString("nombre")+
-                                ", Espacio: "+rs.getBoolean("espacio")+"GB"+
-                                ", Marcos: "+rs.getBoolean("marcos"));
+                                ", Espacio: "+rs.getInt("espacio")+"GB"+
+                                ", Marcos: "+rs.getInt("marcos"));
                     }
                 if(!estaVacio){
                     System.out.println("No hay archivos");

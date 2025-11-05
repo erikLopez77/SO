@@ -51,5 +51,13 @@ public class MarcoDAO {
             }
         }
     }
+    public void vaciarMarcos(int id){
+        String sql="UPDATE marco SET archivo_id=NULL WHERE archivo_id=?";
+        try(PreparedStatement pstmt=connection.prepareStatement(sql)){
+           pstmt.setInt(1, id);
+        } catch (SQLException ex) {
+            Logger.getLogger(MarcoDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
    
 }

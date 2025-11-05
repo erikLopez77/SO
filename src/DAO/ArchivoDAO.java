@@ -55,5 +55,45 @@ public class ArchivoDAO {
         }
         return id;
     }
-    
+    public Archivo obtenerArchivo(int id,int directorio_padre_id ){
+        Archivo a=null;
+        String sql="SELECT * FROM archivos WHERE id=? AND directorio_padre_id=?";
+        try(PreparedStatement pstmt=connection.prepareStatement(sql)){
+            pstmt.setInt(1,id);
+            pstmt.setInt(2,directorio_padre_id);
+            ResultSet rs=pstmt.executeQuery();
+            
+            a=new Archivo();
+            a.setId(rs.getInt("id"));
+            a.setNombre(rs.getString("nombre"));
+            a.setDirectorio_padre_id(rs.getInt("directorio_padre_id"));
+            a.setEspacio(rs.getInt("espacio"));
+            a.setMarcos(rs.getInt("marcos"));
+            
+            
+        } catch (SQLException ex) {
+            Logger.getLogger(ArchivoDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return a;
+    }
+    public void eliminarArchivo(int id,int directorio_padre_id ){
+        Archivo a=null;
+        String sql="DELETE * FROM archivos WHERE id=? AND directorio_padre_id=?";
+        try(PreparedStatement pstmt=connection.prepareStatement(sql)){
+            pstmt.setInt(1,id);
+            pstmt.setInt(2,directorio_padre_id);
+            int filasAfectadas=pstmt.executeUpdate();
+            
+            if (filasAfectadas > 0) {
+                System.out.println("Se ha eliminado la carpeta con éxito");
+            } else {
+                System.out.println("No se pudo eliminar la carpeta");
+            }
+            
+        } catch (SQLException ex) {
+            Logger.getLogger(ArchivoDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }
+            
 }

@@ -49,4 +49,23 @@ public class MemoriaDAO {
             Logger.getLogger(MemoriaDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    public void sumarMarcos(int noMarcos){
+        String queryMarcos="SELECT marcosDisponibles from memoria WHERE id=1";       
+        String actualizarMarcos="UPDATE memoria SET marcosDisponibles=? WHERE id=1";
+        
+        try(Statement stmt=connection.createStatement();
+            PreparedStatement pstmt=connection.prepareStatement(actualizarMarcos)
+        ){
+            ResultSet rs=stmt.executeQuery(queryMarcos);
+            int marcosDisponibles=rs.getInt("marcosDisponibles");
+            
+            marcosDisponibles+=noMarcos;
+            
+            pstmt.setInt(1, marcosDisponibles);
+            pstmt.executeUpdate();
+            
+        } catch (SQLException ex) {
+            Logger.getLogger(MemoriaDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 }
