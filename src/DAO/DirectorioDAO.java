@@ -172,7 +172,7 @@ public class DirectorioDAO {
         }
         //Directorio raiz = null;
         return raiz;
-    }
+    }//para entrar a subcarpeta
     public Directorio obtenerDirectorio(int directorio_padre_id,String nombre){
         String obtenerDirectorio = "SELECT id, nombre, puede_leer, puede_escribir, directorio_padre_id FROM directorios WHERE directorio_padre_id=? AND nombre=?";
         Directorio directorio=null;
@@ -200,7 +200,7 @@ public class DirectorioDAO {
         return directorio;
     }
     public Directorio obtenerDirectorio(int directorio_padre_id){
-        String obtenerDirectorio = "SELECT id, nombre, puede_leer, puede_escribir, directorio_padre_id FROM directorios WHERE directorio_padre_id=?";
+        String obtenerDirectorio = "SELECT id, nombre, puede_leer, puede_escribir, directorio_padre_id FROM directorios WHERE id=?";
         Directorio directorio=null;
         try(PreparedStatement pstmt =connection.prepareStatement(obtenerDirectorio)){
             pstmt.setInt(1, directorio_padre_id);
@@ -215,7 +215,7 @@ public class DirectorioDAO {
                 directorio.setPuede_escribir(rs.getBoolean("puede_escribir"));
                 directorio.setDirectorio_padre_id(rs.getInt("directorio_padre_id")); // Será 0 o null
                 
-                System.out.println("✓ Directorio obtenido: " + directorio.getNombre());
+                //System.out.println("✓ Directorio obtenido: " + directorio.getNombre());
             } else {
                 System.err.println("✗ Error: No se encontró el directorio raíz en la base de datos");
             }           
@@ -224,5 +224,22 @@ public class DirectorioDAO {
         }
         //Directorio raiz = null;
         return directorio;
+    }
+    public void actualizarPermisos(boolean leer,boolean escribir,int id ){
+        String actualizarPermisos="UPDATE directorios SET puede_leer=?,puede_escribir=? WHERE id=?";
+        try(PreparedStatement pstmt=connection.prepareStatement(actualizarPermisos)){
+            pstmt.setBoolean(1, leer);
+            pstmt.setBoolean(2, escribir);
+            pstmt.setInt(3, id);
+            
+            int filasAfectadas=pstmt.executeUpdate();
+            if (filasAfectadas > 0) {
+                System.out.println("Se han actualizado los permisos del directorio");
+            } else {
+                System.out.println("No se pudo actualizar los permisos del directorio");
+            }  
+        } catch (SQLException ex) {
+            Logger.getLogger(DirectorioDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }
