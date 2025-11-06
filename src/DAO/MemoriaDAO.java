@@ -21,7 +21,7 @@ public class MemoriaDAO {
             if(rs.next()){
                 int marcos =rs.getInt(1);
                 //t si hay disponibles
-                System.out.println("Hay marcos disponibles "+marcos);
+                
                 return marcos>=no;
             }
             return false; 

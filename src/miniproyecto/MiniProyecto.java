@@ -203,29 +203,31 @@ public class MiniProyecto {
     }
 
     private static void eliminarDirectorio() { 
-        directorioDAO.verDirectorios(directorioActual.getId());
-        System.out.print("ID del Directorio a eliminar: ");
-        int id = scanner.nextInt();
-        //Nodo nodo = directorioActual.buscarHijo(nombre);
-        if(directorioDAO.estaVacio(id)){
-            directorioDAO.eliminarPorID(id);
-        }   
+        boolean hayDirectorios=directorioDAO.verDirectorios(directorioActual.getId());
+        if(hayDirectorios){
+            System.out.print("ID del Directorio a eliminar: ");
+            int id = scanner.nextInt();
+            //Nodo nodo = directorioActual.buscarHijo(nombre);
+            if(directorioDAO.estaVacio(id)){
+                directorioDAO.eliminarPorID(id);
+            }   
+        }
+        
     }
 
     private static void eliminarArchivo() {
-        directorioDAO.verArchivos(directorioActual.getId());
-        System.out.print("ID del archivo a eliminar: ");
-        int id = scanner.nextInt();
-        //obtener el archivo a Eliminar
-        Archivo arch=archivoDAO.obtenerArchivo(id, directorioActual.getId());
-        if(arch!=null){
+        boolean hayArchivos=directorioDAO.verArchivos(directorioActual.getId());
+       
+        if(hayArchivos){
+            System.out.print("ID del archivo a eliminar: ");
+            int id = scanner.nextInt();
+            //obtener el archivo a Eliminar
+            Archivo arch=archivoDAO.obtenerArchivo(id, directorioActual.getId());
             //liberar la memoria
             memoriaDAO.sumarMarcos(arch.getMarcos());
             marcoDAO.vaciarMarcos(arch.getId());
             archivoDAO.eliminarArchivo(id, directorioActual.getId());
-        }else{
-            System.out.println("No se pudo eliminar su archivo");
-        }     
+        }    
     }
 
     

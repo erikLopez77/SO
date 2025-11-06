@@ -55,6 +55,7 @@ public class MarcoDAO {
         String sql="UPDATE marco SET archivo_id=NULL WHERE archivo_id=?";
         try(PreparedStatement pstmt=connection.prepareStatement(sql)){
            pstmt.setInt(1, id);
+           pstmt.executeUpdate();
         } catch (SQLException ex) {
             Logger.getLogger(MarcoDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
